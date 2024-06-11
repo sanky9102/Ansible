@@ -17,6 +17,7 @@
       ansible.builtin.get_url:
         url: "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
         dest: "{{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
+	validate_certs: no
 
     - name: Extract MongoDB archive
       ansible.builtin.command:
