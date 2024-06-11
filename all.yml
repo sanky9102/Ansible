@@ -1,5 +1,7 @@
 - hosts: servers
   become: yes
+  become_method: sudo
+  become_user: root
 
   vars:
     tomcat_version: "9.0.8"
