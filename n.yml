@@ -1,0 +1,278 @@
+---
+- hosts: servers
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  vars:
+    tomcat_version: "9.0.8"
+    tomcat_install_dir: "/opt/tomcat"
+    mongodb_version: "3.4.7"
+    mongodb_dir: "/home/inferyx/mongodb"
+    mongodb_port: 27017
+
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install dependencies
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - gnupg
+
+    - name: Install Java 8
+      apt:
+        name: openjdk-8-jdk
+        state: present
+
+    - name: Install Java 11
+      apt:
+        name: openjdk-11-jdk
+        state: present
+
+    - name: Install Java 17
+      apt:
+        name: openjdk-17-jdk
+        state: present
+
+    - name: Create directory for MongoDB installation
+      ansible.builtin.file:
+        path: "{{ mongodb_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Download MongoDB archive
+      ansible.builtin.get_url:
+        url: "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
+        dest: "{{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
+
+    - name: Extract MongoDB archive
+      ansible.builtin.command:
+        cmd: "tar -xvf {{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongodb_version }}.tgz --directory {{ mongodb_dir }} --strip-components=1"
+      args:
+        creates: "{{ mongodb_dir }}/bin/mongod"
+
+    - name: Ensure MongoDB binaries are executable
+      ansible.builtin.file:
+        path: "{{ mongodb_dir }}/bin/mongod"
+        mode: '0755'
+
+    - name: Set MongoDB configuration parameters
+      ansible.builtin.copy:
+        content: |
+          # mongod.conf
+          # for documentation of all options, see:
+          #   http://docs.mongodb.org/manual/reference/configuration-options/
+
+          # Where and how to store data.
+          storage:
+            dbPath: {{ mongodb_dir }}
+            journal:
+              enabled: true
+          # where to write logging data.
+          systemLog:
+            destination: file
+            logAppend: true
+            path: {{ mongodb_dir }}/mongod.log
+          # network interfaces
+          net:
+            port: {{ mongodb_port }}
+            bindIp: 127.0.0.1
+        dest: /etc/mongod.conf
+
+    - name: Create systemd service file for MongoDB
+      ansible.builtin.copy:
+        content: |
+          [Unit]
+          Description=MongoDB Database Service
+          After=network.target
+
+          [Service]
+          User=root
+          ExecStart={{ mongodb_dir }}/bin/mongod --config /etc/mongod.conf
+          ExecReload=/bin/kill -HUP $MAINPID
+          Restart=on-failure
+          LimitNOFILE=64000
+
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/mongodb.service
+        mode: '0644'
+
+    - name: Reload systemd daemon
+      ansible.builtin.command:
+        cmd: systemctl daemon-reload
+
+    - name: Start MongoDB service
+      ansible.builtin.service:
+        name: mongodb
+        state: started
+        enabled: yes
+
+    - name: Create symbolic link for MongoDB binaries
+      ansible.builtin.file:
+        src: "{{ mongodb_dir }}/bin/mongo"
+        dest: "/usr/local/bin/mongo"
+        state: link
+
+    - name: Install Tomcat dependencies
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - curl
+        - tar
+
+    - name: Create Tomcat user
+      ansible.builtin.user:
+        name: tomcat
+        shell: /bin/false
+
+    - name: Download Tomcat
+      ansible.builtin.get_url:
+        url: "https://archive.apache.org/dist/tomcat/tomcat-9/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
+        dest: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
+
+    - name: Create Tomcat installation directory
+      ansible.builtin.file:
+        path: "{{ tomcat_install_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Extract Tomcat
+      ansible.builtin.unarchive:
+        src: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
+        dest: "{{ tomcat_install_dir }}"
+        remote_src: yes
+        creates: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}"
+
+    - name: Set permissions on Tomcat installation directory
+      ansible.builtin.command:
+        cmd: chown -R tomcat:tomcat {{ tomcat_install_dir }}
+
+    - name: Create systemd service file for Tomcat
+      ansible.builtin.copy:
+        content: |
+          [Unit]
+          Description=Apache Tomcat
+          After=network.target
+
+          [Service]
+          Type=simple
+          User=tomcat
+          Group=tomcat
+          Environment="JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+          ExecStart={{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/bin/startup.sh
+          ExecStop={{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/bin/shutdown.sh
+          Restart=on-failure
+
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/tomcat.service
+        mode: '0644'
+
+    - name: Reload systemd daemon
+      ansible.builtin.command:
+        cmd: systemctl daemon-reload
+
+    - name: Restart Tomcat service
+      ansible.builtin.service:
+        name: tomcat
+        state: restarted
+
+    - name: Install MySQL
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Start and enable MySQL
+      ansible.builtin.service:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: Add Neo4j repository key
+      ansible.builtin.apt_key:
+        url: https://debian.neo4j.com/neotechnology.gpg.key
+        state: present
+
+    - name: Add Neo4j repository
+      ansible.builtin.apt_repository:
+        repo: "deb https://debian.neo4j.com stable 4.3"
+        state: present
+        update_cache: yes
+
+    - name: Install Neo4j
+      apt:
+        name: neo4j
+        state: present
+
+    - name: Configure Neo4j to use the correct Java version
+      lineinfile:
+        path: /etc/environment
+        line: "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+        state: present
+
+    - name: Reload systemd daemon
+      ansible.builtin.command:
+        cmd: systemctl daemon-reload
+
+    - name: Start and enable Neo4j
+      ansible.builtin.service:
+        name: neo4j
+        state: started
+        enabled: yes
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Configure Nginx
+      ansible.builtin.copy:
+        content: |
+          server {
+              listen 80 default_server;
+              listen [::]:80 default_server;
+
+              root /var/www/html;
+              index index.html index.htm index.nginx-debian.html;
+
+              server_name _;
+
+              location / {
+                  try_files $uri $uri/ =404;
+              }
+
+              location /tomcat/ {
+                  proxy_pass http://127.0.0.1:8080/;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
+          }
+        dest: /etc/nginx/sites-available/default
+        mode: '0644'
+      notify:
+        - Reload Nginx
+
+  handlers:
+    - name: Reload Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded
