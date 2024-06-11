@@ -95,3 +95,4 @@
     - name: Print MongoDB client version
       ansible.builtin.debug:
         msg: "MongoDB client version: {{ mongo_version.stdout }}"
+
