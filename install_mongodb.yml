@@ -15,7 +15,7 @@
 
     - name: Download MongoDB archive
       ansible.builtin.get_url:
-        url: "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
+        url: "https://downloads.mongodb.com/linux/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
         dest: "{{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
         validate_certs: no
 
