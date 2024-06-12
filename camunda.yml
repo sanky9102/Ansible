@@ -2,6 +2,9 @@
 - hosts: servers
   become: yes
 
+  vars:
+    camunda_user: "inferyx"
+
   tasks:
     - name: Install prerequisites
       apt:
