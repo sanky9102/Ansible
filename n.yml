@@ -58,11 +58,16 @@
         creates: "{{ mongodb_dir }}/bin/mongod"
 
     - name: Ensure MongoDB binaries are executable
+      find:
+        paths: "{{ mongodb_dir }}/bin"
+        recurse: yes
+      register: mongodb_binaries
+
+    - name: Set executable permissions on MongoDB binaries
       ansible.builtin.file:
-        path: "{{ mongodb_dir }}/bin/"
-        state: directory
+        path: "{{ item.path }}"
         mode: '0755'
-      recurse: yes
+      loop: "{{ mongodb_binaries.files }}"
 
     - name: Set MongoDB configuration parameters
       ansible.builtin.copy:
