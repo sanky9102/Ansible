@@ -29,8 +29,21 @@
 
     - name: Set up Camunda as a service
       template:
-        src: camunda.service.j2
         dest: /etc/systemd/system/camunda.service
+        content: |
+          [Unit]
+          Description=Camunda BPM Platform
+          After=network.target
+
+          [Service]
+          User={{ camunda_user }}
+          WorkingDirectory=/opt/camunda-bpm-tomcat-7.15.0
+          ExecStart=/opt/camunda-bpm-tomcat-7.15.0/bin/start.sh
+          ExecStop=/opt/camunda-bpm-tomcat-7.15.0/bin/stop.sh
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
       tags:
         - service
 
