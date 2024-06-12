@@ -25,6 +25,7 @@
         - curl
         - software-properties-common
         - gnupg
+        - python3-pip
 
     - name: Install Java 8
       apt:
@@ -199,10 +200,10 @@
         name: mysql-server
         state: present
 
-    - name: Install Python MySQL library
-      apt:
-        name: python3-mysql.connector
-        state: present
+    - name: Install Python MySQL library using pip
+      pip:
+        name: pymysql
+        executable: pip3
 
     - name: Set MySQL root password
       mysql_user:
@@ -210,6 +211,8 @@
         host: localhost
         password: "{{ mysql_root_password }}"
         state: present
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
 
     - name: Start and enable MySQL
       ansible.builtin.service:
