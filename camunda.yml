@@ -14,7 +14,7 @@
 
     - name: Add Camunda user
       user:
-        name: inferyx
+        name: camunda
         shell: /bin/bash
         createhome: yes
       tags:
@@ -37,13 +37,21 @@
 
     - name: Set up Camunda as a service
       template:
-        src: /path/to/camunda.service.j2  # Specify the path to your template file if you have one
         dest: /etc/systemd/system/camunda.service
-        owner: root
-        group: root
-        mode: 0644
-        backup: yes
-        validate: 'systemctl --no-ask-password daemon-reload && systemctl status --no-pager camunda'
+        content: |
+          [Unit]
+          Description=Camunda BPM Platform
+          After=network.target
+
+          [Service]
+          User=camunda
+          WorkingDirectory=/opt/camunda-bpm-tomcat-7.15.0
+          ExecStart=/opt/camunda-bpm-tomcat-7.15.0/bin/start.sh
+          ExecStop=/opt/camunda-bpm-tomcat-7.15.0/bin/stop.sh
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
       tags:
         - service
 
