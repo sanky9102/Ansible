@@ -1,8 +1,5 @@
----
 - hosts: servers
   become: yes
-  become_method: sudo
-  become_user: root
 
   vars:
     tomcat_version: "9.0.8"
@@ -62,8 +59,10 @@
 
     - name: Ensure MongoDB binaries are executable
       ansible.builtin.file:
-        path: "{{ mongodb_dir }}/bin/mongod"
+        path: "{{ mongodb_dir }}/bin/"
+        state: directory
         mode: '0755'
+      recurse: yes
 
     - name: Set MongoDB configuration parameters
       ansible.builtin.copy:
@@ -157,6 +156,7 @@
     - name: Set permissions on Tomcat installation directory
       ansible.builtin.command:
         cmd: chown -R tomcat:tomcat {{ tomcat_install_dir }}
+        creates: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}"
 
     - name: Create systemd service file for Tomcat
       ansible.builtin.copy:
@@ -193,6 +193,13 @@
         name: mysql-server
         state: present
 
+    - name: Set MySQL root password
+      ansible.builtin.mysql_user:
+        name: root
+        host: localhost
+        password: "root_password"
+        state: present
+
     - name: Start and enable MySQL
       ansible.builtin.service:
         name: mysql
@@ -215,7 +222,7 @@
         name: neo4j
         state: present
 
-    - name: Configure Neo4j to use the correct Java version
+    - name: Ensure JAVA_HOME is set for Neo4j
       lineinfile:
         path: /etc/environment
         line: "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
