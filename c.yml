@@ -1,0 +1,27 @@
+---
+- hosts: servers
+  become: yes
+
+  tasks:
+    - name: Download Camunda distribution
+      get_url:
+        url: "https://storage.googleapis.com/downloads-camunda-cloud-release/camunda-bpm/tomcat/7.20/camunda-bpm-tomcat-7.20.0.tar.gz?GoogleAccessId=download-center-reader%40camunda-public.iam.gserviceaccount.com&Expires=1708597772&Signature=AaaxiWiOYGLdMmRYtAUM5E2%2FSHOfAN0wQb2t%2FmDZkcE08D4M%2FSvfEB0e%2Be90xaEzvQvQAr9%2FO85PixbLz8PLLnAVHRI2lWEN3TOF30QoJiLJfu7%2FfyN0TYz8ZglGw%2Fl3wC2bwgWQ5cD9qBfdFf%2BP1cD26IZOTCQ1IjvXfMbUSYQCKaHqXOdbhDyXyRV%2FaVCaNsLTsr25WMp9cJ0ccjG1JOkVkFXRQZaejL639i26eUraw7mKiGYUHB4hWWKfQqSMh4cXWHxe858hkrBjje2CBEFwsUTAJ8nYg1QCQO7F3j6vdOfSzWkDf65yy3RCtrlocPFmyDmBB4hRCp0daD7qAA%3D%3D&response-content-disposition=attachment%3B%20filename%3D%22camunda-bpm-tomcat-7.20.0.tar.gz%22"
+        dest: "/tmp/camunda-bpm-tomcat-7.20.0.tar.gz"
+
+    - name: Extract Camunda distribution
+      unarchive:
+        src: "/tmp/camunda-bpm-tomcat-7.20.0.tar.gz"
+        dest: "/app"
+        remote_src: yes
+
+    - name: Modify server.xml if needed
+      blockinfile:
+        path: "/app/camunda-bpm-tomcat-7.20.0/server/apache-tomcat-9.0.75/conf/server.xml"
+        marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item }}"
+        block: |
+          <!-- Your configuration changes here -->
+      loop: "{{ lookup('file', '/app/camunda-bpm-tomcat-7.20.0/server/apache-tomcat-9.0.75/conf/server.xml') | regex_findall('(<Connector.*)') }}"
+      when: item is regex(".*port=\"9090\".*")
+
+    - name: Start Camunda service
+      shell: "/app/camunda-bpm-tomcat-7.20.0/bin/start-camunda.sh"
