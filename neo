@@ -1,0 +1,29 @@
+---
+- name: Setup Neo4j and Nginx
+  hosts: servers
+  become: yes
+  tasks:
+    - name: Start and enable Neo4j
+      ansible.builtin.service:
+        name: neo4j
+        state: started
+        enabled: yes
+      ignore_errors: true
+      register: neo4j_result
+
+    - name: Debug Neo4j result
+      ansible.builtin.debug:
+        var: neo4j_result
+      when: neo4j_result is failed
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+      ignore_errors: true
+      register: nginx_result
+
+    - name: Debug Nginx result
+      ansible.builtin.debug:
+        var: nginx_result
+      when: nginx_result is failed
