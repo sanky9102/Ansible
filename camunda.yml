@@ -2,9 +2,6 @@
 - hosts: servers
   become: yes
 
-  vars:
-    camunda_user: "inferyx"
-
   tasks:
     - name: Install prerequisites
       apt:
@@ -14,6 +11,14 @@
         state: present
       tags: 
         - prerequisites
+
+    - name: Add Camunda user
+      user:
+        name: camunda
+        shell: /bin/bash
+        createhome: yes
+      tags:
+        - users
 
     - name: Download Camunda distribution
       get_url:
@@ -39,7 +44,7 @@
           After=network.target
 
           [Service]
-          User={{ camunda_user }}
+          User=camunda
           WorkingDirectory=/opt/camunda-bpm-tomcat-7.15.0
           ExecStart=/opt/camunda-bpm-tomcat-7.15.0/bin/start.sh
           ExecStop=/opt/camunda-bpm-tomcat-7.15.0/bin/stop.sh
