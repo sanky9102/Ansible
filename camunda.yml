@@ -1,0 +1,42 @@
+---
+- hosts: servers
+  become: yes
+
+  tasks:
+    - name: Install prerequisites
+      apt:
+        name: 
+          - openjdk-8-jdk
+          - unzip
+        state: present
+      tags: 
+        - prerequisites
+
+    - name: Download Camunda distribution
+      get_url:
+        url: https://camunda.org/release/camunda-bpm/tomcat/7.15/camunda-bpm-tomcat-7.15.0.tar.gz
+        dest: /tmp/camunda.tar.gz
+      tags:
+        - download
+
+    - name: Extract Camunda distribution
+      unarchive:
+        src: /tmp/camunda.tar.gz
+        dest: /opt
+        remote_src: yes
+      tags:
+        - extract
+
+    - name: Set up Camunda as a service
+      template:
+        src: camunda.service.j2
+        dest: /etc/systemd/system/camunda.service
+      tags:
+        - service
+
+    - name: Start Camunda service
+      systemd:
+        name: camunda
+        state: started
+      tags:
+        - service
