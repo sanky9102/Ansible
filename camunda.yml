@@ -2,14 +2,27 @@
 - hosts: servers
   become: yes
 
+  vars:
+    camunda_install_dir: /opt/camunda
+
   tasks:
+    - name: Create Camunda directory
+      file:
+        path: "{{ camunda_install_dir }}"
+        state: directory
+        owner: camunda
+        group: camunda
+        mode: '0755'
+      tags:
+        - setup
+
     - name: Install prerequisites
       apt:
-        name: 
+        name:
           - openjdk-8-jdk
           - unzip
         state: present
-      tags: 
+      tags:
         - prerequisites
 
     - name: Add Camunda user
@@ -30,14 +43,14 @@
     - name: Extract Camunda distribution
       unarchive:
         src: /tmp/camunda.tar.gz
-        dest: /opt
+        dest: "{{ camunda_install_dir }}"
         remote_src: yes
       tags:
         - extract
 
     - name: Set ownership and permissions
       file:
-        path: /opt/camunda-bpm-tomcat-7.15.0
+        path: "{{ camunda_install_dir }}"
         owner: camunda
         group: camunda
         recurse: yes
@@ -46,14 +59,14 @@
 
     - name: Ensure start-camunda.sh script is executable
       file:
-        path: /opt/camunda-bpm-tomcat-7.15.0/start-camunda.sh
+        path: "{{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/start-camunda.sh"
         mode: '0755'
       tags:
         - permissions
 
     - name: Ensure shutdown-camunda.sh script is executable
       file:
-        path: /opt/camunda-bpm-tomcat-7.15.0/shutdown-camunda.sh
+        path: "{{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/shutdown-camunda.sh"
         mode: '0755'
       tags:
         - permissions
@@ -68,9 +81,9 @@
 
           [Service]
           User=camunda
-          WorkingDirectory=/opt/camunda-bpm-tomcat-7.15.0
-          ExecStart=/opt/camunda-bpm-tomcat-7.15.0/start-camunda.sh
-          ExecStop=/opt/camunda-bpm-tomcat-7.15.0/shutdown-camunda.sh
+          WorkingDirectory={{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0
+          ExecStart={{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/start-camunda.sh
+          ExecStop={{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/shutdown-camunda.sh
           Restart=always
 
           [Install]
@@ -79,7 +92,8 @@
         - service
 
     - name: Reload systemd
-      command: systemctl daemon-reload
+      systemd:
+        daemon_reload: yes
       tags:
         - service
 
