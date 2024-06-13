@@ -36,7 +36,7 @@
         - extract
 
     - name: Set up Camunda as a service
-      template:
+      copy:
         dest: /etc/systemd/system/camunda.service
         content: |
           [Unit]
@@ -46,12 +46,17 @@
           [Service]
           User=camunda
           WorkingDirectory=/opt/camunda-bpm-tomcat-7.15.0
-          ExecStart=/opt/camunda-bpm-tomcat-7.15.0/bin/start.sh
-          ExecStop=/opt/camunda-bpm-tomcat-7.15.0/bin/stop.sh
+          ExecStart=/opt/camunda-bpm-tomcat-7.15.0/bin/startup.sh
+          ExecStop=/opt/camunda-bpm-tomcat-7.15.0/bin/shutdown.sh
           Restart=always
 
           [Install]
           WantedBy=multi-user.target
+      tags:
+        - service
+
+    - name: Reload systemd
+      command: systemctl daemon-reload
       tags:
         - service
 
