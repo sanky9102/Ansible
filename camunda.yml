@@ -35,6 +35,15 @@
       tags:
         - extract
 
+    - name: Set ownership and permissions
+      file:
+        path: /opt/camunda-bpm-tomcat-7.15.0
+        owner: camunda
+        group: camunda
+        recurse: yes
+      tags:
+        - permissions
+
     - name: Set up Camunda as a service
       copy:
         dest: /etc/systemd/system/camunda.service
@@ -64,5 +73,12 @@
       systemd:
         name: camunda
         state: started
+      tags:
+        - service
+
+    - name: Enable Camunda service to start on boot
+      systemd:
+        name: camunda
+        enabled: yes
       tags:
         - service
