@@ -41,7 +41,7 @@
         - download
 
     - name: Extract Camunda distribution
-      unarchive:
+      ansible.builtin.unarchive:
         src: /tmp/camunda.tar.gz
         dest: "{{ camunda_install_dir }}"
         remote_src: yes
@@ -50,7 +50,7 @@
 
     - name: Set ownership and permissions
       file:
-        path: "{{ camunda_install_dir }}"
+        path: "{{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0"
         owner: camunda
         group: camunda
         recurse: yes
@@ -59,14 +59,14 @@
 
     - name: Ensure start-camunda.sh script is executable
       file:
-        path: "{{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/start-camunda.sh"
+        path: "{{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/bin/start-camunda.sh"
         mode: '0755'
       tags:
         - permissions
 
     - name: Ensure shutdown-camunda.sh script is executable
       file:
-        path: "{{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/shutdown-camunda.sh"
+        path: "{{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/bin/shutdown-camunda.sh"
         mode: '0755'
       tags:
         - permissions
@@ -82,8 +82,8 @@
           [Service]
           User=camunda
           WorkingDirectory={{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0
-          ExecStart={{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/start-camunda.sh
-          ExecStop={{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/shutdown-camunda.sh
+          ExecStart={{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/bin/start-camunda.sh
+          ExecStop={{ camunda_install_dir }}/camunda-bpm-tomcat-7.15.0/bin/shutdown-camunda.sh
           Restart=always
 
           [Install]
