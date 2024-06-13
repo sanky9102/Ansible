@@ -16,7 +16,7 @@
       tags:
         - setup
 
-    - name: Install prerequisites
+    - name: Install prerequisites (Java 8 only)
       apt:
         name:
           - openjdk-8-jdk
