@@ -1,6 +1,6 @@
 ---
 - name: Setup and Install Inferyx Project
-  hosts: all
+  hosts: servers
   become: yes
   vars:
     git_token: "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"
@@ -33,9 +33,9 @@
       with_items: "{{ directories }}"
 
     - name: Navigate to the project directory and clone the repository
-      ansible.builtin.command: >
-        cd "{{ project_directory }}" &&
-        git clone https://github.com/inferyx/platform.git
+      ansible.builtin.command:
+        cmd: git clone https://github.com/inferyx/platform.git
+        chdir: "{{ project_directory }}"
       environment:
         GIT_TOKEN: "{{ git_token }}"
       become_user: inferyx
