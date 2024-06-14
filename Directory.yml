@@ -1,0 +1,70 @@
+---
+- name: Setup Project Environment
+  hosts: servers
+  become: yes
+  tasks:
+    - name: Create necessary directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+        owner: inferyx
+        group: inferyx
+      loop:
+        - /backup
+        - /install
+        - /data
+        - /app
+
+    - name: Set permissions for directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0777"
+      loop:
+        - /backup
+        - /install
+
+    - name: Set permissions for /app and /data
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0744"
+      loop:
+        - /app
+        - /data
+
+    - name: Change ownership of directories to inferyx user
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: inferyx
+        group: inferyx
+        recurse: yes
+      loop:
+        - /backup
+        - /install
+        - /data
+        - /app
+
+    - name: Navigate to the project directory and clone repository
+      ansible.builtin.command:
+        cmd: git clone https://github.com/inferyx/platform.git /home/inferyx/git/inferyx/platform
+        chdir: /home/inferyx/git/inferyx
+        creates: /home/inferyx/git/inferyx/platform  # Only clone if the directory doesn't exist
+
+    - name: Set permissions for project directory
+      ansible.builtin.file:
+        path: /home/inferyx/git/inferyx/platform
+        state: directory
+        mode: "0755"
+        owner: inferyx
+        group: inferyx
+
+    - name: Change ownership of project directory to inferyx user
+      ansible.builtin.file:
+        path: /home/inferyx/git/inferyx/platform
+        state: directory
+        owner: inferyx
+        group: inferyx
+        recurse: yes
