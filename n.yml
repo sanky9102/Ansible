@@ -166,6 +166,11 @@
         cmd: chown -R tomcat:tomcat {{ tomcat_install_dir }}
         creates: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}"
 
+    - name: Ensure /etc/default/tomcat exists
+      ansible.builtin.file:
+        path: /etc/default/tomcat
+        state: touch
+
     - name: Set JAVA_HOME for Tomcat
       lineinfile:
         path: /etc/default/tomcat
@@ -266,12 +271,4 @@
               }
           }
         dest: /etc/nginx/sites-available/default
-        mode: '0644'
-      notify:
-        - Reload Nginx
-
-  handlers:
-    - name: Reload Nginx
-      ansible.builtin.service:
-        name: nginx
-        state: reloaded
+        mode
