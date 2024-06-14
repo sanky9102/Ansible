@@ -57,26 +57,26 @@
         path: "{{ mongodb_dir }}"
         state: directory
         mode: "0755"
-      when: not mongodb_installed
+      when: not mongodb_installed or not mongodb_installed == true
 
     - name: Download MongoDB archive
       ansible.builtin.get_url:
         url: "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-{{ mongo_version }}.tgz"
         dest: "{{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongo_version }}.tgz"
-      when: not mongodb_installed
+      when: not mongodb_installed or not mongodb_installed == true
 
     - name: Extract MongoDB archive
       ansible.builtin.command:
         cmd: "tar -xvf {{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongo_version }}.tgz --directory {{ mongodb_dir }} --strip-components=1"
       args:
         creates: "{{ mongodb_dir }}/bin/mongod"
-      when: not mongodb_installed
+      when: not mongodb_installed or not mongodb_installed == true
 
     - name: Ensure MongoDB binaries are executable
       ansible.builtin.file:
         path: "{{ mongodb_dir }}/bin/mongod"
         mode: '0755'
-      when: not mongodb_installed
+      when: not mongodb_installed or not mongodb_installed == true
 
     - name: Set MongoDB configuration parameters
       ansible.builtin.copy:
@@ -100,7 +100,7 @@
             port: {{ mongodb_port }}
             bindIp: 127.0.0.1
         dest: /etc/mongod.conf
-      when: not mongodb_installed
+      when: not mongodb_installed or not mongodb_installed == true
 
     - name: Create systemd service file for MongoDB
       ansible.builtin.copy:
@@ -120,37 +120,37 @@
           WantedBy=multi-user.target
         dest: /etc/systemd/system/mongodb.service
         mode: '0644'
-      when: not mongodb_installed
+      when: not mongodb_installed or not mongodb_installed == true
 
     - name: Reload systemd daemon
       ansible.builtin.command:
         cmd: systemctl daemon-reload
-      when: not mongodb_installed
+      when: not mongodb_installed or not mongodb_installed == true
 
     - name: Start MongoDB service
       ansible.builtin.service:
         name: mongodb
         state: started
         enabled: yes
-      when: not mongodb_installed
+      when: not mongodb_installed or not mongodb_installed == true
 
     - name: Create symbolic link for MongoDB binaries
       ansible.builtin.file:
         src: "{{ mongodb_dir }}/bin/mongo"
         dest: "/usr/local/bin/mongo"
         state: link
-      when: not mongodb_installed
+      when: not mongodb_installed or not mongodb_installed == true
 
     - name: Verify MongoDB client installation
       ansible.builtin.command:
         cmd: mongo --version
       register: mongo_version
-      when: not mongodb_installed
+      when: not mongodb_installed or not mongodb_installed == true
 
     - name: Set fact if MongoDB is installed
       set_fact:
         mongodb_installed: true
-      when: mongo_version.rc == 0
+      when: not mongodb_installed or not mongodb_installed == true
 
     - name: Print MongoDB client version
       ansible.builtin.debug:
