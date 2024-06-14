@@ -1,3 +1,4 @@
+---
 - hosts: servers
   become: yes
 
@@ -113,7 +114,7 @@
         dest: /etc/systemd/system/mongodb.service
         mode: '0644'
 
-    - name: Reload systemd daemon
+    - name: Reload systemd daemon after updating MongoDB service
       ansible.builtin.command:
         cmd: systemctl daemon-reload
 
@@ -165,28 +166,19 @@
         cmd: chown -R tomcat:tomcat {{ tomcat_install_dir }}
         creates: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}"
 
+    - name: Set JAVA_HOME for Tomcat
+      lineinfile:
+        path: /etc/default/tomcat
+        line: 'JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"'
+        state: present
+
     - name: Create systemd service file for Tomcat
-      ansible.builtin.copy:
-        content: |
-          [Unit]
-          Description=Apache Tomcat
-          After=network.target
-
-          [Service]
-          Type=simple
-          User=tomcat
-          Group=tomcat
-          Environment="JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
-          ExecStart={{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/bin/startup.sh
-          ExecStop={{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/bin/shutdown.sh
-          Restart=on-failure
-
-          [Install]
-          WantedBy=multi-user.target
+      ansible.builtin.template:
+        src: tomcat.service.j2
         dest: /etc/systemd/system/tomcat.service
         mode: '0644'
 
-    - name: Reload systemd daemon
+    - name: Reload systemd daemon after updating Tomcat service
       ansible.builtin.command:
         cmd: systemctl daemon-reload
 
@@ -228,7 +220,7 @@
         line: "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
         state: present
 
-    - name: Reload systemd daemon
+    - name: Reload systemd daemon after updating Neo4j environment
       ansible.builtin.command:
         cmd: systemctl daemon-reload
 
