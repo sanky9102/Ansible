@@ -271,4 +271,13 @@
               }
           }
         dest: /etc/nginx/sites-available/default
-        mode
+                mode: '0644'
+      notify:
+        - Reload Nginx
+
+  handlers:
+    - name: Reload Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded
+
