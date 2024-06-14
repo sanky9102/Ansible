@@ -271,7 +271,7 @@
               }
           }
         dest: /etc/nginx/sites-available/default
-                mode: '0644'
+        mode: '0644'
       notify:
         - Reload Nginx
 
@@ -280,4 +280,3 @@
       ansible.builtin.service:
         name: nginx
         state: reloaded
-
