@@ -1,2 +1,2 @@
 [servers]
-server1 ansible_host=192.168.1.107 ansible_user=inferyx ansible_ssh_private_key_file=/home/inferyx/.ssh/id_rsa
+server1 ansible_host=172.31.37.231 ansible_user=inferyx ansible_ssh_private_key_file=/home/inferyx/.ssh/id_rsa
