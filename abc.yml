@@ -18,10 +18,14 @@
         path: "{{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
       register: mongodb_archive
 
-    - name: Download MongoDB archive
-      ansible.builtin.get_url:
-        url: "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
-        dest: "{{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
+    - name: Install curl
+      ansible.builtin.package:
+        name: curl
+        state: present
+
+    - name: Download MongoDB archive with curl
+      ansible.builtin.command:
+        cmd: "curl -L -o {{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongodb_version }}.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
       when: not mongodb_archive.stat.exists
 
     - name: Extract MongoDB archive
