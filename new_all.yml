@@ -223,9 +223,17 @@
         state: started
         enabled: yes
 
+    - name: Install curl
+      apt:
+        name: curl
+        state: present
+
+    - name: Download Neo4j repository key using curl
+      command: curl -L -o /tmp/neotechnology.gpg.key https://debian.neo4j.com/neotechnology.gpg.key
+
     - name: Add Neo4j repository key
       ansible.builtin.apt_key:
-        url: https://debian.neo4j.com/neotechnology.gpg.key
+        file: /tmp/neotechnology.gpg.key
         state: present
 
     - name: Add Neo4j repository
