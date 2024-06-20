@@ -32,12 +32,12 @@
 
     - name: Ensure start.pem file has correct permissions
       file:
-        path: /home/ubuntu/start.pem
+        path: /path/to/start.pem
         mode: '0600'
       delegate_to: localhost
 
     - name: Copy inferyx-platform-test-v6.1.3.tar.gz to /install/framework/build/ directory on remote server using scp
-      command: scp -i /home/ubuntu/start.pem /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz ubuntu@{{ inventory_hostname }}:/install/framework/build/
+      command: scp -i /path/to/start.pem /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz ubuntu@{{ inventory_hostname }}:/install/framework/build/
       delegate_to: localhost
 
     - name: Set ownership of the directories to inferyx user
