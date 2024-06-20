@@ -1,6 +1,5 @@
 - name: Copy files to destination
   hosts: servers
-  connection: local
   tasks:
     - name: copy src.txt as dest.txt in the same dir 
       copy:
