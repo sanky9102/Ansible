@@ -32,7 +32,7 @@
 
     - name: Ensure start.pem file has correct permissions
       file:
-        path: /path/to/start.pem
+        path: /home/ubuntu/start.pem
         mode: '0600'
       delegate_to: localhost
 
