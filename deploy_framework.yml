@@ -1,8 +1,51 @@
 ---
-- name: Copy file to remote host
-  hosts: servers  # Replace with your target host or group of hosts
+- name: Create user inferyx and required directories
+  hosts: servers
+  become: yes
   tasks:
-    - name: Copy file
+
+    - name: Create user inferyx
+      user:
+        name: inferyx
+        state: present
+        create_home: yes
+        shell: /bin/bash
+
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+        owner: inferyx
+        group: inferyx
+      loop:
+        - /app/
+        - /backup/
+        - /install/
+        - /install/framework/
+        - /install/framework/build/
+
+    - name: Verify directories
+      command: ls -ld /app/ /backup/ /install/ /install/framework/ /install/framework/build/
+      register: dir_listing
+
+    - name: Print directory listings
+      debug:
+        msg: "{{ dir_listing.stdout_lines }}"
+
+    - name: Copy file to /app/ directory
       copy:
         src: /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz  # Replace with the path to your local file
-        dest: /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz  # Replace with the path to the remote destination
+        dest: /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz
+        owner: inferyx
+        group: inferyx
+        mode: '0644'
+
+    - name: Verify copied file
+      command: ls -l /app/file.txt
+      register: copied_file_listing
+
+    - name: Print copied file listing
+      debug:
+        msg: "{{ copied_file_listing.stdout }}"
+
