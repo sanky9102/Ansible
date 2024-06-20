@@ -15,6 +15,8 @@
         path: "{{ item }}"
         state: directory
         mode: '0755'
+        owner: inferyx
+        group: inferyx
       loop:
         - /app/
         - /backup/
@@ -32,25 +34,13 @@
 
     - name: Copy inferyx-platform-test-v6.1.3.tar.gz to /tmp/ directory on remote server
       ansible.builtin.copy:
-        src: /home/ubuntu/
+        src: /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz
         dest: /tmp/inferyx-platform-test-v6.1.3.tar.gz
         mode: '0644'
 
     - name: Move the tar file to the correct directory
       command: mv /tmp/inferyx-platform-test-v6.1.3.tar.gz /install/framework/build/
-
-    - name: Set ownership of the directories to inferyx user
-      file:
-        path: "{{ item }}"
-        state: directory
-        owner: inferyx
-        group: inferyx
-      loop:
-        - /app/
-        - /backup/
-        - /install/
-        - /install/framework/
-        - /install/framework/build/
+      become_user: root
 
     - name: Set ownership of the copied tar file to inferyx user
       file:
