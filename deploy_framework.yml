@@ -27,7 +27,7 @@
 
     - name: Copy inferyx-platform-test-v6.1.3.tar.gz to /install/framework/build/ directory on remote server
       ansible.builtin.copy:
-        src: /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz
+        src: /home/ubuntu/
         dest: /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz
         mode: '0644'
 
