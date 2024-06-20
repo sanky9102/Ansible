@@ -34,7 +34,7 @@
     - name: Copy inferyx-platform-test-v6.1.3.tar.gz to /install/framework/build/ directory on remote server using scp
       local_action: 
         module: command 
-        cmd: scp -i /path/to/start.pem /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz ubuntu@{{ inventory_hostname }}:/install/framework/build/
+        cmd: scp -i /home/ubuntu/start.pem /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz ubuntu@{{ inventory_hostname }}:/install/framework/build/
 
     - name: Set ownership of the directories to inferyx user
       file:
