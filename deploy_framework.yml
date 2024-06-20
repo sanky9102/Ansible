@@ -7,4 +7,4 @@
         src: /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz
         dest: /install/framework/build/
         remote_src: yes
-      delegate_to: destination_server
+      delegate_to: servers
