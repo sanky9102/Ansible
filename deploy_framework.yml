@@ -10,13 +10,11 @@
         create_home: yes
         shell: /bin/bash
 
-    - name: Create directories
+    - name: Create necessary directories
       file:
         path: "{{ item }}"
         state: directory
         mode: '0755'
-        owner: inferyx
-        group: inferyx
       loop:
         - /app/
         - /backup/
@@ -33,20 +31,41 @@
         msg: "{{ dir_listing.stdout_lines }}"
 
     - name: Copy inferyx-platform-test-v6.1.3.tar.gz to /tmp/ directory on remote server
-      copy:
-        src: /home/ubuntu/  # Ensure this path is correct
-        dest: /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz
+      ansible.builtin.copy:
+        src: /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz
+        dest: /tmp/inferyx-platform-test-v6.1.3.tar.gz
+        mode: '0644'
+
+    - name: Move the tar file to the correct directory
+      command: mv /tmp/inferyx-platform-test-v6.1.3.tar.gz /install/framework/build/
+
+    - name: Set ownership of the directories to inferyx user
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: inferyx
+        group: inferyx
+      loop:
+        - /app/
+        - /backup/
+        - /install/
+        - /install/framework/
+        - /install/framework/build/
+
+    - name: Set ownership of the copied tar file to inferyx user
+      file:
+        path: /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz
+        state: file
         owner: inferyx
         group: inferyx
         mode: '0644'
-        remote_src: yes  # Ensure to use remote_src option
 
     - name: Extract inferyx platform tar file
-      ansible.builtin.command: tar xzf /tmp/inferyx-platform-test-v6.1.3.tar.gz -C /install/
+      ansible.builtin.command: tar xzf /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz -C /install/framework/build/
       become_user: inferyx
 
     - name: Verify extracted files
-      command: ls -l /install/inferyx-platform-test-v6.1.3/
+      command: ls -l /install/framework/build/
       register: extracted_files_listing
 
     - name: Print extracted files listing
