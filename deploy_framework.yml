@@ -3,8 +3,8 @@
   tasks:
     - name: copy src.txt as dest.txt in the same dir 
       copy:
-        src: files/src.txt
-        dest: files/dest.txt
+        src: /home/ubuntu/
+        dest: /install/framework/build/
       tags:
         - simple_copy
 
