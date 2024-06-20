@@ -30,14 +30,12 @@
       debug:
         msg: "{{ dir_listing.stdout_lines }}"
 
-    - name: Copy inferyx-platform-test-v6.1.3.tar.gz to /tmp/ directory on remote server
-      ansible.builtin.copy:
-        src: /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz
-        dest: /tmp/inferyx-platform-test-v6.1.3.tar.gz
-        mode: '0644'
-
-    - name: Move the tar file to the correct directory
-      command: mv /tmp/inferyx-platform-test-v6.1.3.tar.gz /install/framework/build/
+    - name: Copy inferyx-platform-test-v6.1.3.tar.gz to /install/framework/build/ directory on remote server using scp
+      ansible.builtin.command: >
+        scp -i /home/ubuntu/start.pem
+        /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz
+        ubuntu@{{ inventory_hostname }}:/install/framework/build/
+      delegate_to: localhost
 
     - name: Set ownership of the directories to inferyx user
       file:
