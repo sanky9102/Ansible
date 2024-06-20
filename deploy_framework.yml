@@ -1,8 +1,7 @@
 ---
 - name: Copy and extract inferyx platform tar file
-  hosts: servers # Replace with your actual host group or server name
+  hosts: servers
   become: yes
-
   tasks:
     - name: Create user inferyx
       user:
@@ -11,7 +10,7 @@
         create_home: yes
         shell: /bin/bash
 
-    - name: Create necessary directories
+    - name: Create directories
       file:
         path: "{{ item }}"
         state: directory
@@ -33,22 +32,23 @@
       debug:
         msg: "{{ dir_listing.stdout_lines }}"
 
-    - name: Copy inferyx-platform-test-v6.1.3.tar.gz to remote server
-      ansible.builtin.copy:
-        src: /home/inferyx/
+    - name: Copy inferyx-platform-test-v6.1.3.tar.gz to /tmp/ directory on remote server
+      copy:
+        src: /home/ubuntu/  # Ensure this path is correct
         dest: /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz
         owner: inferyx
         group: inferyx
         mode: '0644'
+        remote_src: yes  # Ensure to use remote_src option
 
-    - name: Untar the file
-      ansible.builtin.command: tar xvf /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz -C /install/framework/build/
+    - name: Extract inferyx platform tar file
+      ansible.builtin.command: tar xzf /tmp/inferyx-platform-test-v6.1.3.tar.gz -C /install/
       become_user: inferyx
 
-    - name: Navigate to the bin folder
-      ansible.builtin.command: cd /install/framework/build/inferyx-platform-final-v6.0.0/deploy/bin
-      become_user: inferyx
+    - name: Verify extracted files
+      command: ls -l /install/inferyx-platform-test-v6.1.3/
+      register: extracted_files_listing
 
-    - name: Run deploy_framework.sh script with required parameters
-      ansible.builtin.command: ./deploy_framework.sh -a all -d framework -H localhost -P 27017 -u inferyx -p 20Inferyx19 -o all
-      become_user: inferyx
+    - name: Print extracted files listing
+      debug:
+        msg: "{{ extracted_files_listing.stdout_lines }}"
