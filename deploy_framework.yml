@@ -1,0 +1,33 @@
+---
+- name: Deploy Inferyx Platform
+  hosts: servers
+  become: yes
+  vars:
+    src_file: /home/ubuntu/inferyx-platform-test-v6.0.2.tar.gz
+    dest_path: /install/framework/build/
+    dest_file: "{{ dest_path }}/inferyx-platform-test-v6.0.2.tar.gz"
+    extract_dir: inferyx-platform-final-v6.0.0/deploy/bin
+    script_name: deploy_framework.sh
+    script_params: "-a all -d framework -H localhost -P 27017 -u inferyx -p 20Inferyx19 -o all"
+
+  tasks:
+    - name: Copy inferyx platform tarball to target server
+      ansible.builtin.copy:
+        src: "{{ src_file }}"
+        dest: "{{ dest_path }}"
+        mode: '0644'
+    
+    - name: Untar the inferyx platform tarball
+      ansible.builtin.command:
+        cmd: "tar -xvf {{ dest_file }}"
+        chdir: "{{ dest_path }}"
+    
+    - name: Navigate to the bin folder and run the deployment script
+      ansible.builtin.shell:
+        cmd: "./{{ script_name }} {{ script_params }}"
+        chdir: "{{ dest_path }}/{{ extract_dir }}"
+
+    - name: Ensure script is executable
+      ansible.builtin.file:
+        path: "{{ dest_path }}/{{ extract_dir }}/{{ script_name }}"
+        mode: '0755'
