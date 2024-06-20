@@ -3,7 +3,7 @@
   hosts: servers
   become: yes
   vars:
-    src_file: /home/ubuntu/inferyx-platform-test-v6.0.2.tar.gz
+    src_file: /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz
     dest_path: /install/framework/build/
     dest_file: "{{ dest_path }}/inferyx-platform-test-v6.0.2.tar.gz"
     extract_dir: inferyx-platform-final-v6.0.0/deploy/bin
