@@ -1,22 +1,22 @@
-- name: Copy files to destination
-  hosts: servers
-  tasks:
-    - name: copy src.txt as dest.txt in the same dir 
-      copy:
-        src: /home/ubuntu/
-        dest: /install/framework/build/
-      tags:
-        - simple_copy
-
+---
 - name: Copy and extract inferyx platform tar file
   hosts: servers
   become: yes
   tasks:
-    - name: Create necessary directories
+    - name: Create user inferyx
+      user:
+        name: inferyx
+        state: present
+        create_home: yes
+        shell: /bin/bash
+
+    - name: Create directories
       file:
         path: "{{ item }}"
         state: directory
         mode: '0755'
+        owner: inferyx
+        group: inferyx
       loop:
         - /app/
         - /backup/
@@ -32,17 +32,21 @@
       debug:
         msg: "{{ dir_listing.stdout_lines }}"
 
-    - name: Copy inferyx-platform-test-v6.1.3.tar.gz to /install/framework/build/ directory on remote server
-      ansible.builtin.copy:
-        src: /home/ubuntu/
+    - name: Copy inferyx-platform-test-v6.1.3.tar.gz to /tmp/ directory on remote server
+      copy:
+        src: /home/ubuntu/  # Ensure this path is correct
         dest: /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz
+        owner: inferyx
+        group: inferyx
         mode: '0644'
+        remote_src: yes  # Ensure to use remote_src option
 
     - name: Extract inferyx platform tar file
-      ansible.builtin.command: tar xzf /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz -C /install/framework/build/
+      ansible.builtin.command: tar xzf /tmp/inferyx-platform-test-v6.1.3.tar.gz -C /install/
+      become_user: inferyx
 
     - name: Verify extracted files
-      command: ls -l /install/framework/build/
+      command: ls -l /install/inferyx-platform-test-v6.1.3/
       register: extracted_files_listing
 
     - name: Print extracted files listing
