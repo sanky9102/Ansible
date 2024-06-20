@@ -36,9 +36,7 @@
       ansible.builtin.copy:
         src: /home/ubuntu/ # Full path to your tar file on Ansible Controller
         dest: /install/framework/build/
-        owner: inferyx
-        group: inferyx
-        mode: '0644'
+        
 
     - name: Untar the file
       ansible.builtin.command: tar xvf /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz -C /install/framework/build/
