@@ -1,6 +1,6 @@
 ---
 - name: Copy inferyx-platform-final-v6.1.3.tar.gz to another remote server using rsync
-  hosts: serverA
+  hosts: servers
   tasks:
     - name: Copy inferyx-platform-final-v6.1.3.tar.gz to serverB using rsync
       synchronize:
