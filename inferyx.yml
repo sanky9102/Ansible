@@ -1,35 +1,12 @@
 ---
-- name: Fetch the tar file from serverA and copy it to serverB
+- name: Copy inferyx-platform-final-v6.1.3.tar.gz to another remote server using rsync
   hosts: serverA
   tasks:
-    - name: Fetch the tar file from serverA
-      fetch:
-        src: /home/ubuntu/inferyx-platform-test-v6.1.3.tar.gz
-        dest: /tmp/inferyx-platform-test-v6.1.3.tar.gz
-      delegate_to: serverA
-
-- hosts: serverB
-  tasks:
-    - name: Copy the tar file to serverB
-      copy:
-        src: /tmp/inferyx-platform-test-v6.1.3.tar.gz
-        dest: /install/framework/build/inferyx-platform-test-v6.1.3.tar.gz
-
-
-
-
-
-
-
-
-
-
-
-
-
-- hosts: servers
-  tasks:
-    - name: Copy the tar file to serverB
-      copy:
-        src: /home/ubuntu/
-        dest: 
+    - name: Copy inferyx-platform-final-v6.1.3.tar.gz to serverB using rsync
+      synchronize:
+        mode: pull
+        src: /home/ubuntu/inferyx-platform-final-v6.1.3.tar.gz
+        dest: /install/framework/build/inferyx-platform-final-v6.1.3.tar.gz
+        archive: yes
+      delegate_to: "{{ servers }}"
+      tags: release
