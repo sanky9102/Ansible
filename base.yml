@@ -3,3 +3,4 @@
     - copy:
         src: /home/ubuntu/sanket.txt
         dest: /install/framework/build/sanket.txt
+        remote_src: yes
