@@ -1,6 +1,6 @@
 ---
 -name: run the task on host
- hosts: "*"
+ hosts: servers
  tasks:
    -name: copy file to remote
     copy:
