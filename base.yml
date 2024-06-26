@@ -1,4 +1,4 @@
-  ---
+---
 - name: copy file from local to remote
   hosts: servers
   tasks:
