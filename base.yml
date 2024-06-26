@@ -1,4 +1,6 @@
+  
 - name: Copy and extract foo.tgz into /var/lib/foo
+  hosts: server1
   ansible.builtin.unarchive:
     src: inferyx-platform-final-v6.1.3.tar.gz
     dest: /install/framework/build
