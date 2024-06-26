@@ -4,7 +4,7 @@
   tasks:
     - name: copy file to remote
       copy:
-        src: /home/ubuntu/test_file   # Path to the file on the local machine
+        src: /home/ubuntu/   # Path to the file on the local machine
         dest: /home/remote_user/test_file2
         owner: "ubuntu"
         group: "ubuntu"
