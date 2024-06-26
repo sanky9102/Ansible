@@ -1,0 +1,5 @@
+- hosts: servers
+  tasks:
+    - copy:
+        src: /users/rolando/myfile
+        dest: /users/rolando/myfile
