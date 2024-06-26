@@ -5,7 +5,7 @@
     - name: copy file to remote
       copy:
         src: /home/ubuntu/   # Path to the file on the local machine
-        dest: /home/remote_user/test_file2
+        dest: /home/ubuntu/test_file2
         owner: "ubuntu"
         group: "ubuntu"
         mode: '0644'
