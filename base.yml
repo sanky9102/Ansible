@@ -4,5 +4,5 @@
   tasks:
     - name: copy file to remote
       copy:
-        src: test_file
+        src: ./test_file   # Adjust the path if necessary
         dest: $HOME/test_file
