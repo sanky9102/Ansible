@@ -15,7 +15,7 @@
 
     - name: Extract tar file
       ansible.builtin.unarchive:
-        src: /home/ubuntu/inferyx-platform-final-v6.1.3  # path to the tar file on the remote host
+        src: /home/ubuntu/  # path to the tar file on the remote host
         dest: /install/framework/build/  # destination path on the remote host
         remote_src: yes  # indicates that the src is on the remote host
       when: result.rc == 0
