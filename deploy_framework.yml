@@ -34,8 +34,8 @@
 
     - name: copying file with playbook
       copy:
-        src: /home/ubuntu/
-        dest: /install/framework/build/
+        src: /home/ubuntu/sanket.txt
+        dest: /install/framework/build/sanket.txt
         owner: inferyx
         group: inferyx        
         mode: 0644
