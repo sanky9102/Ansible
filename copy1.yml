@@ -1,6 +1,6 @@
 ---
 - name: Extract tar file on remote host
-  hosts: your_remote_hosts
+  hosts: servers
   become: yes  # use this if you need sudo privileges
   tasks:
     - name: Extract tar file
