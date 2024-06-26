@@ -1,0 +1,127 @@
+- name: Setup MongoDB
+  hosts: servers
+  become: yes
+  vars:
+    mongodb_version: "3.4.7"
+    mongodb_dir: "/home/inferyx/mongodb"
+    mongodb_port: 27017
+    mongodb_user: "inferyx"
+    mongodb_password: "20Inferyx19"
+    mongodb_roles:
+      - { role: "read", db: "framework" }
+      - { role: "readWrite", db: "framework" }
+      - { role: "dbAdmin", db: "framework" }
+
+  tasks:
+    - name: Create directory for MongoDB installation
+      ansible.builtin.file:
+        path: "{{ mongodb_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Check if MongoDB archive exists
+      ansible.builtin.stat:
+        path: "{{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
+      register: mongodb_archive
+
+    - name: Install curl
+      ansible.builtin.package:
+        name: curl
+        state: present
+
+    - name: Download MongoDB archive with curl
+      ansible.builtin.command:
+        cmd: "curl -L -o {{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongodb_version }}.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-{{ mongodb_version }}.tgz"
+      when: not mongodb_archive.stat.exists
+
+    - name: Extract MongoDB archive
+      ansible.builtin.command:
+        cmd: "tar -xvf {{ mongodb_dir }}/mongodb-linux-x86_64-{{ mongodb_version }}.tgz --directory {{ mongodb_dir }} --strip-components=1"
+      args:
+        creates: "{{ mongodb_dir }}/bin/mongod"
+
+    - name: Ensure MongoDB binaries are executable
+      ansible.builtin.file:
+        path: "{{ mongodb_dir }}/bin/mongod"
+        mode: '0755'
+
+    - name: Set MongoDB configuration parameters
+      ansible.builtin.copy:
+        content: |
+          # mongod.conf
+          # for documentation of all options, see:
+          #   http://docs.mongodb.org/manual/reference/configuration-options/
+
+          # Where and how to store data.
+          storage:
+            dbPath: {{ mongodb_dir }}
+            journal:
+              enabled: true
+          # where to write logging data.
+          systemLog:
+            destination: file
+            logAppend: true
+            path: {{ mongodb_dir }}/mongod.log
+          # network interfaces
+          net:
+            port: {{ mongodb_port }}
+            bindIp: 127.0.0.1
+        dest: /etc/mongod.conf
+
+    - name: Create systemd service file for MongoDB
+      ansible.builtin.copy:
+        content: |
+          [Unit]
+          Description=MongoDB Database Service
+          After=network.target
+
+          [Service]
+          User=root
+          ExecStart={{ mongodb_dir }}/bin/mongod --config /etc/mongod.conf
+          ExecReload=/bin/kill -HUP $MAINPID
+          Restart=on-failure
+          LimitNOFILE=64000
+
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/mongodb.service
+        mode: '0644'
+
+    - name: Reload systemd daemon
+      ansible.builtin.command:
+        cmd: systemctl daemon-reload
+
+    - name: Start MongoDB service
+      ansible.builtin.service:
+        name: mongodb
+        state: started
+        enabled: yes
+
+    - name: Create symbolic link for MongoDB binaries
+      ansible.builtin.file:
+        src: "{{ mongodb_dir }}/bin/mongo"
+        dest: "/usr/local/bin/mongo"
+        state: link
+
+    - name: Verify MongoDB client installation
+      ansible.builtin.command:
+        cmd: mongo --version
+      register: mongo_version
+
+    - name: Print MongoDB client version
+      ansible.builtin.debug:
+        msg: "MongoDB client version: {{ mongo_version.stdout }}"
+
+    - name: Create MongoDB user
+      ansible.builtin.shell:
+        cmd: |
+          mongo admin --eval '
+          db.createUser({
+            user: "{{ mongodb_user }}",
+            pwd: "{{ mongodb_password }}",
+            roles: [
+              {% for role in mongodb_roles %}
+              { role: "{{ role.role }}", db: "{{ role.db }}" }{% if not loop.last %},{% endif %}
+              {% endfor %}
+            ]
+          })'
