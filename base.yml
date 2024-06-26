@@ -1,12 +1,12 @@
 ---
-- name: copy file between directories on remote with owner, group and file permissions (octal)
+- name: copy file within remote
   hosts: servers
   tasks:
-    - name: copy file to remote
+    - name: copy file to another directory on remote
       copy:
-        src: /home/ubuntu/test_file   # Absolute path to the file on the local machine
-        dest: $HOME/test_file2
-        remote_src: true
+        src: /home/ubuntu/test_file   # Path to the file on the remote machine
+        dest: /home/ubuntu/test_file
+        remote_src: false
         owner: "ubuntu"
         group: "ubuntu"
         mode: '0644'
