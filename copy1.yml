@@ -1,0 +1,10 @@
+---
+- name: Copy tar file to remote servers
+  hosts: servers
+  become: true  # If copying to directories requiring root privileges
+
+  tasks:
+    - name: Copy tar file
+      copy:
+        src: /home/ubuntu/inferyx-platform-final-v6.1.3.tar.gz  # Local path to your tar file
+        dest: /tmp/inferyx-platform-final-v6.1.3.tar.gz  # Remote path where you want to copy the tar file
