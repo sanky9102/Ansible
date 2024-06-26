@@ -1,5 +1,5 @@
 - hosts: servers
   tasks:
     - copy:
-        src: /users/rolando/myfile
-        dest: /users/rolando/myfile
+        src: /home/ubuntu/sanket.txt
+        dest: /install/framework/build/sanket.txt
