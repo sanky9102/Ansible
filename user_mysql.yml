@@ -1,0 +1,26 @@
+- name: Install MySQL
+  hosts: servers
+  become: yes
+  vars:
+    mysql_version: "8.0"
+    mysql_root_password: "inferyx"  # Replace with your desired root password
+
+  tasks:
+    - name: Install MySQL server
+      apt:
+        name: mysql-server-{{ mysql_version }}
+        state: present
+
+    - name: Set MySQL root password
+      mysql_user:
+        name: root
+        password: "{{ mysql_root_password }}"
+        host: localhost
+        login_user: root
+        login_password: ""
+
+    - name: Start and enable MySQL service
+      service:
+        name: mysql
+        state: started
+        enabled: yes
