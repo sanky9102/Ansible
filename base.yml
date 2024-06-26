@@ -4,5 +4,5 @@
   tasks:
     - name: copy file to remote
       copy:
-        src: ./test_file   # Adjust the path if necessary
+        src: /home/ubuntu/test_file   # Replace with the actual path
         dest: $HOME/test_file
