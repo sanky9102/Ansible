@@ -15,7 +15,7 @@
 
     - name: Extract tar file
       ansible.builtin.unarchive:
-        src: /home/ubuntu/sanket.txt  # path to the tar file on the remote host
+        src: /home/ubuntu/ # path to the tar file on the remote host
         dest: /install/framework/build/sanket.txt  # destination path on the remote host
         remote_src: yes  # indicates that the src is on the remote host
       when: result.rc == 0
