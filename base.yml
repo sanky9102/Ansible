@@ -1,12 +1,8 @@
-- hosts: server1
-  tasks:
-    - name: Copy and extract foo.tgz into /var/lib/foo
-      ansible.builtin.unarchive:
-        src: /home/ubuntu/inferyx-platform-final-v6.1.3.tar.gz
-        dest: /install/framework/build
-
-    - name: Extract a file that is already on the remote machine (/tmp/foo.zip)
-      ansible.builtin.unarchive:
-        src: /home/ubuntu/inferyx-platform-final-v6.1.3.tar.gz
-        dest: /install/framework/build
-        remote_src: yes
+---
+-name: run the task on host
+ hosts: "*"
+ tasks:
+   -name: copy file to remote
+    copy:
+      src: test_file
+      dest: $HOME/test_file
