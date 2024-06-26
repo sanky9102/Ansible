@@ -1,12 +1,11 @@
----
-- name: copy file within remote
+  ---
+- name: copy file from local to remote
   hosts: servers
   tasks:
-    - name: copy file to another directory on remote
+    - name: copy file to remote
       copy:
-        src: /home/ubuntu/test_file   # Path to the file on the remote machine
-        dest: /home/ubuntu/test_file
-        remote_src: false
+        src: /home/ubuntu/test_file   # Path to the file on the local machine
+        dest: /home/remote_user/test_file2
         owner: "ubuntu"
         group: "ubuntu"
         mode: '0644'
