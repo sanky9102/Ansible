@@ -1,8 +1,8 @@
 ---
--name: run the task on host
- hosts: servers
- tasks:
-   -name: copy file to remote
-    copy:
-      src: test_file
-      dest: $HOME/test_file
+- name: run the task on host
+  hosts: servers
+  tasks:
+    - name: copy file to remote
+      copy:
+        src: test_file
+        dest: $HOME/test_file
