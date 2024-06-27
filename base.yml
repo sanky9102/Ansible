@@ -1,7 +1,10 @@
-- name: Copying required files
-  hosts: servers
-  tasks:
+---
+- name: Deploy docker-compose file
+  hosts: all
+  become: yes
+  tasks:    
     - name: Copy docker-compose.yml to remote host
-      template:
-        src: test_file
-        dest: /home/ubuntu/test_file
+      copy:
+        src: /home/ubuntu/test_file
+        dest: /tmp/test_file
+        mode: '0644'
