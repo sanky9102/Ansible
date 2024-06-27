@@ -1,11 +1,7 @@
----
-- name: copy file from local to remote
+- name: Copying required files
   hosts: servers
   tasks:
-    - name: copy file to remote
-      copy:
-        src: /home/ubuntu/   # Path to the file on the local machine
+    - name: Copy docker-compose.yml to remote host
+      template:
+        src: test_file
         dest: /home/ubuntu/test_file
-        owner: "ubuntu"
-        group: "ubuntu"
-        mode: '0644'
