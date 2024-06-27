@@ -1,12 +1,7 @@
 - hosts: servers
-  become: yes
   tasks:
-    - name: Ensure correct permissions on SSH key
-      file:
-        path: /home/ubuntu/.ssh/id_rsa
-        owner: ubuntu
-        group: ubuntu
-        mode: '0600'
+    - name: Debug SSH key file path
+      command: ls -l /home/ubuntu/.ssh/id_rsa
       delegate_to: localhost
 
     - name: Transfer file from ServerA to ServerB
