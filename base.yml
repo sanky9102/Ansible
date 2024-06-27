@@ -1,4 +1,4 @@
-- hosts: Servers
+- hosts: servers
   tasks:
     - name: Transfer file from ServerA to ServerB
       synchronize:
