@@ -1,18 +1,6 @@
----
-- name: Deploy docker-compose file
-  hosts: servers
-  become: yes
+- hosts: Servers
   tasks:
-    - name: Ensure the correct permissions on the local file
-      command: sudo chmod 644 /home/ubuntu/test_file
-      run_once: true
-
-    - name: Ensure the correct permissions on the directory
-      command: sudo chmod 755 /home/ubuntu
-      run_once: true
-
-    - name: Copy docker-compose.yml to remote host
-      copy:
-        src: /home/ubuntu/test_file
-        dest: /tmp/test_file
-        mode: '0644'
+    - name: Transfer file from ServerA to ServerB
+      synchronize:
+        src: /home/ubuntu/inferyx-platform-final-v6.1.3.tar.gz
+        dest: /home/ubuntu/inferyx-platform-final-v6.1.3.tar.gz
