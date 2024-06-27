@@ -1,6 +1,6 @@
 ---
 - name: Deploy docker-compose file
-  hosts: all
+  hosts: servers
   become: yes
   tasks:    
     - name: Copy docker-compose.yml to remote host
