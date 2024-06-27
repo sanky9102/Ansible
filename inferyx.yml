@@ -1,11 +1,9 @@
----
 - name: Copy inferyx-platform-final-v6.1.3.tar.gz to another remote server using rsync
   hosts: servers
+  become: yes
   tasks:
     - name: Copy inferyx-platform-final-v6.1.3.tar.gz to server2 using rsync
       synchronize:
         mode: push
         src: /home/ubuntu/sanket
         dest: /home/ubuntu/sanket
-        archive: yes
-   
