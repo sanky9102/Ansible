@@ -1,9 +1,5 @@
 - hosts: servers
   tasks:
-    - name: Debug SSH key file path
-      command: ls -l /home/ubuntu/.ssh/id_rsa
-      delegate_to: localhost
-
     - name: Transfer file from ServerA to ServerB
       synchronize:
         src: /home/ubuntu/sanket
