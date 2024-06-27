@@ -2,7 +2,15 @@
 - name: Deploy docker-compose file
   hosts: servers
   become: yes
-  tasks:    
+  tasks:
+    - name: Ensure the correct permissions on the local file
+      local_action: command chmod 644 /home/ubuntu/test_file
+      run_once: true
+
+    - name: Ensure the correct permissions on the directory
+      local_action: command chmod 755 /home/ubuntu
+      run_once: true
+
     - name: Copy docker-compose.yml to remote host
       copy:
         src: /home/ubuntu/test_file
