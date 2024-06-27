@@ -1,6 +1,16 @@
 - hosts: servers
+  become: yes
   tasks:
+    - name: Ensure correct permissions on SSH key
+      file:
+        path: /home/ubuntu/.ssh/id_rsa
+        owner: ubuntu
+        group: ubuntu
+        mode: '0600'
+      delegate_to: localhost
+
     - name: Transfer file from ServerA to ServerB
       synchronize:
         src: /home/ubuntu/sanket
         dest: /home/ubuntu/sanket
+      delegate_to: 172.31.17.157
