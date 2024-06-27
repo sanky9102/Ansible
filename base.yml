@@ -1,7 +1,7 @@
-- hosts: servers
-  tasks:
-    - name: Transfer file from ServerA to ServerB
-      synchronize:
-        src: /home/ubuntu/sanket
-        dest: /home/ubuntu/sanket
-      delegate_to: 172.31.17.157
+- name: copy file from local to remote with owner, group and file permissions (octal)
+  copy:
+    src: /home/ubuntu/sanket
+    dest: /home/ubuntu/sanket
+    owner: "ubuntu"
+    group: "ubuntu"
+    mode: 0644
