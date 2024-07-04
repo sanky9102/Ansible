@@ -1,7 +1,0 @@
-- name: copy file from local to remote with owner, group and file permissions (octal)
-  copy:
-    src: /home/ubuntu/sanket
-    dest: /home/ubuntu/sanket
-    owner: "ubuntu"
-    group: "ubuntu"
-    mode: 0644
