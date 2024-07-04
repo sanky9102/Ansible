@@ -1,8 +1,0 @@
-- name: Fetch a file from remote host to control machine
-  hosts: servers
-  tasks:
-    - name: Fetch file.txt from remote host
-      ansible.builtin.fetch:
-        src:  /install/framework/build/sanket     
-        dest: /home/ubuntu/
-        flat: yes
